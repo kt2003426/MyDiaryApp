@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router/build/link/Link';
 
 export default function App() {
   return (
@@ -8,10 +9,15 @@ export default function App() {
     <View style={styles.header}>
         <Text style={styles.headerText}>日記アプリ</Text>
     </View>
+      <Link href="/new" asChild style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <Pressable style={styles.newDiaryLink}>
+        <Text>新しい日記を作成</Text>
+      </Pressable>
+    </Link>
     <View style={styles.container}>
       <Text style={styles.title}>日記一覧</Text>
       <StatusBar style="auto" />
-      </View>
+    </View>
       <View style={styles.cardContainer}>
         <View style={styles.card}>
           <Text>2025/7/30</Text>
@@ -71,5 +77,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-
+ newDiaryLink: {
+    margin: 10,
+    padding: 10,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 5,
+    textAlign: 'center',
+  },
 });
