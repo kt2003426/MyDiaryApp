@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import React from 'react';
+import '../firebaseConfig';
 
 export default function RootLayout() {
   return (
