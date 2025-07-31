@@ -1,9 +1,7 @@
 import { Stack } from 'expo-router';
-import React from 'react';
-import {useState} from 'react';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import '../firebaseConfig';
-import { getAuth,onAuthStateChanged,User } from 'firebase/auth';
-import { useEffect } from 'react';
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
@@ -28,6 +26,13 @@ export default function RootLayout() {
         }} 
       />
       <Stack.Screen name="detail" options={{ title: 'ログイン', presentation: 'modal' }} />
+      <Stack.Screen 
+        name="newdiary" 
+        options={{ 
+          title: '新しい日記を作成',
+          presentation: 'modal', // 画面が下からせり上がってくる
+        }}
+      />
     </Stack>
   );
 }

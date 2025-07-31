@@ -1,7 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView, Pressable, Alert } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { getAuth, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import React from 'react';
+import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 export default function DiaryListScreen() {
   const [user, setUser] = React.useState<User | null>(null);
@@ -41,6 +41,11 @@ export default function DiaryListScreen() {
             <Pressable style={styles.logoutButton} onPress={handleLogout}>
               <Text style={styles.logoutButtonText}>ログアウト</Text>
             </Pressable>
+            <Link href="/newdiary" asChild>
+              <Pressable style={styles.authButton}>
+                <Text style={styles.authButtonText}>新しい日記を書く</Text>
+              </Pressable>
+            </Link>
           </View>
         ) : (
           // --- ログインしていない時の表示 ---
