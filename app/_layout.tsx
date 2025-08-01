@@ -40,6 +40,13 @@ export default function RootLayout() {
           presentation: 'modal', // 画面が下からせり上がってくる
         }}
       />
+      <Stack.Screen 
+        name="edit"
+        options={{ 
+          title: '日記編集',
+          presentation: 'modal', // 画面が下からせり上がってくる
+        }}
+      />
     </Stack>
   );
 }
