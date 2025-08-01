@@ -3,7 +3,7 @@ import { View, StyleSheet, Text } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { getFirestore, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-
+import { useRouter } from 'expo-router';
 // 日本語化の設定
 LocaleConfig.locales['ja'] = {
   monthNames: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
@@ -24,7 +24,10 @@ interface MarkedDates {
 export default function CalendarScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
-
+    const router = useRouter();
+    const handleDayPress = (day: { dateString: string }) => {
+      router.push({ pathname: '/(tabs)', params: { date: day.dateString } });
+    };
   useEffect(() => {
     const auth = getAuth();
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -46,6 +49,8 @@ export default function CalendarScreen() {
           });
           setMarkedDates(dates);
         });
+          
+    
         
         // このeffectが再実行される時に前回の監視を解除
         return () => unsubscribeFirestore();
@@ -65,6 +70,8 @@ export default function CalendarScreen() {
           arrowColor: '#4682b4',
           todayTextColor: '#4682b4',
         }}
+        onDayPress={handleDayPress}
+        style={styles.calendar}
       />
     </View>
   );
@@ -82,5 +89,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     color: '#333',
-  },
+    },
+    calendar: {
+      borderWidth: 1,
+      borderColor: '#eee',
+      borderRadius: 10,
+      overflow: 'hidden',
+    },
 });

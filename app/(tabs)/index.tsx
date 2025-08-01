@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { collection, getFirestore, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React from 'react';
@@ -17,6 +17,7 @@ export default function DiaryListScreen() {
   const [user, setUser] = React.useState<User | null>(null);
   const router = useRouter();
   const [diaries, setDiaries] = React.useState<Diary[]>([]);
+  const params = useLocalSearchParams<{ date?: string }>();
   // この画面でもログイン状態を監視
   React.useEffect(() => {
     const auth = getAuth();
@@ -24,13 +25,21 @@ export default function DiaryListScreen() {
       setUser(currentUser);
     });
 
-  let unsubscribeDiaries: () => void = () => {};
+    let unsubscribeDiaries: () => void = () => { };
     if (auth.currentUser) {
       const db = getFirestore();
-      const q = query(collection(db, 'diaries'), 
+      let q = query(collection(db, 'diaries'),
         where('userId', '==', auth.currentUser.uid),
         orderBy('createdAt', 'desc')
       );
+      if (params.date) {
+        const startDate = new Date(params.date);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(params.date);
+        endDate.setHours(23, 59, 59, 999);
+        q = query(collection(db, 'diaries'), where('createdAt', '>=', Timestamp.fromDate(startDate)), where('createdAt', '<=', Timestamp.fromDate(endDate)), where('userId', '==', auth.currentUser.uid)
+          , orderBy('createdAt', 'desc'));
+      }
       unsubscribeDiaries = onSnapshot(q, (querySnapshot) => {
         const userDiaries: Diary[] = [];
         querySnapshot.forEach((doc) => {
@@ -46,7 +55,7 @@ export default function DiaryListScreen() {
       unsubscribe();
       unsubscribeDiaries();
     };
-  }, [user]);
+  }, [user, params.date]);
 
   const handleLogout = () => {
     const auth = getAuth();
@@ -103,8 +112,26 @@ export default function DiaryListScreen() {
           </View>
         </View>
       )}
-
-      {user && (
+        {params.date && (
+          <View style={styles.listContainer}>
+            <Pressable onPress={() => router.setParams({ date: undefined })} style={{ marginBottom: 20 }}>
+              <Text style={{ color: '#007bff' }}><Feather name="arrow-left" size={16} /> クリア</Text>
+            </Pressable>
+            <Text style={styles.SectionTitle}><Feather name="calendar" size={16} /> {params.date} の日記</Text>
+            {diaries.length > 0 ?
+              <FlatList
+                data={diaries}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <DiaryCard item={item} />
+                )}
+                style={{ paddingHorizontal: 20 }}
+              />
+              : <Text>この日に書いた日記はありません。</Text>
+            }
+          </View>
+        )}
+      {user && !params.date && (
         <View>
         <Text style={styles.SectionTitle}><Feather name="book" size={16} /> あなたの日記一覧</Text>
         <FlatList
