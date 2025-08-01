@@ -1,20 +1,50 @@
 import { Link, useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { collection, getFirestore, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+
+interface Diary{
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Timestamp;  
+}
 
 export default function DiaryListScreen() {
   const [user, setUser] = React.useState<User | null>(null);
   const router = useRouter();
-
+  const [diaries, setDiaries] = React.useState<Diary[]>([]);
   // この画面でもログイン状態を監視
   React.useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-    return () => unsubscribe();
-  }, []);
+
+  let unsubscribeDiaries: () => void = () => {};
+    if (auth.currentUser) {
+      const db = getFirestore();
+      const q = query(collection(db, 'diaries'), 
+        where('userId', '==', auth.currentUser.uid),
+        orderBy('createdAt', 'desc')
+      );
+      unsubscribeDiaries = onSnapshot(q, (querySnapshot) => {
+        const userDiaries: Diary[] = [];
+        querySnapshot.forEach((doc) => {
+          userDiaries.push({ id: doc.id, ...doc.data() } as Diary);
+        });
+        setDiaries(userDiaries);
+      });
+    }
+    else {
+      setDiaries([]);
+    }
+    return () => {
+      unsubscribe();
+      unsubscribeDiaries();
+    };
+  }, [user]);
 
   const handleLogout = () => {
     const auth = getAuth();
@@ -26,6 +56,7 @@ export default function DiaryListScreen() {
         console.error('Logout Error:', error);
       });
   };
+    
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,11 +72,6 @@ export default function DiaryListScreen() {
             <Pressable style={styles.logoutButton} onPress={handleLogout}>
               <Text style={styles.logoutButtonText}>ログアウト</Text>
             </Pressable>
-            <Link href="/newdiary" asChild>
-              <Pressable style={styles.authButton}>
-                <Text style={styles.authButtonText}>新しい日記を書く</Text>
-              </Pressable>
-            </Link>
           </View>
         ) : (
           // --- ログインしていない時の表示 ---
@@ -73,6 +99,33 @@ export default function DiaryListScreen() {
           </View>
         </View>
       )}
+
+      {user && (
+        <View>
+        <Text style={styles.SectionTitle}>あなたの日記一覧</Text>
+        <FlatList
+          data={diaries}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.cardDate}>{item.createdAt?.toDate().toLocaleDateString("ja-JP")}</Text>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+            </View>
+          )}
+          style={{ paddingHorizontal: 20 }}
+          />
+        </View>
+      )}
+
+      {user && (
+        <View>
+          <Link href="/newdiary" asChild>
+            <Pressable style={styles.authButton}>
+              <Text style={styles.authButtonText}>新しい日記を書く</Text>
+            </Pressable>
+          </Link>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -94,4 +147,5 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 8, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
   cardDate: { fontSize: 12, color: '#888', marginBottom: 4 },
   cardTitle: { fontSize: 16, fontWeight: 'bold' },
+  SectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#333', marginLeft: 20 },
 });
