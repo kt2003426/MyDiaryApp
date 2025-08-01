@@ -2,6 +2,7 @@ import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-rout
 import { deleteDoc, doc, getDoc, getFirestore } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 interface Diary {
   title: string;
@@ -59,7 +60,7 @@ export default function DiaryDetailScreen() {
   if (!diary) {
       return (
         <View style={styles.centered}>
-          <Text>日記が見つかりません</Text>
+          <Text><Feather name="alert-circle" size={16} /> 日記が見つかりません</Text>
         </View>
       );
   }
@@ -71,14 +72,14 @@ export default function DiaryDetailScreen() {
           <Text style={styles.content}>{diary.content}</Text>
           <Link href={{ pathname: "/edit", params: { diaryId } }} asChild>
             <Pressable style={styles.editLink}>
-              <Text style={{ color: '#fff' }}>編集</Text>
+              <Text style={{ color: '#fff' }}><Feather name="edit" size={16} /> 編集</Text>
               </Pressable>
           </Link>
           <Pressable onPress={handleDelete} style={styles.deleteLink}>
-              <Text style={{ color: '#fff' }}>削除</Text>
+              <Text style={{ color: '#fff' }}><Feather name="trash" size={16} /> 削除</Text>
               </Pressable>
           <Pressable onPress={() => router.back()} style={styles.editLink}>
-              <Text style={{ color: '#fff' }}>戻る</Text>
+              <Text style={{ color: '#fff' }}><Feather name="arrow-left" size={16} /> 戻る</Text>
             </Pressable>
     </ScrollView>
   );

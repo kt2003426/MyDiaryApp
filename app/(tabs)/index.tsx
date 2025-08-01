@@ -1,8 +1,10 @@
+import { Feather } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { collection, getFirestore, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React from 'react';
-import { Alert, FlatList, Pressable, ScrollView,SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import DiaryCard from '../component/DiaryCard';
 
 interface Diary{
   id: string;
@@ -62,7 +64,7 @@ export default function DiaryListScreen() {
     <ScrollView style={styles.container}>
       <SafeAreaView>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>日記アプリ</Text>
+        <Text style={styles.headerTitle}><Feather name="book" size={24} /> 日記アプリ</Text>
       </View>
       
       <View style={styles.authContainer}>
@@ -71,7 +73,7 @@ export default function DiaryListScreen() {
           <View style={styles.loggedInContainer}>
             <Text style={styles.welcomeText}>{user.email} でログイン中</Text>
             <Pressable style={styles.logoutButton} onPress={handleLogout}>
-              <Text style={styles.logoutButtonText}>ログアウト</Text>
+              <Text style={styles.logoutButtonText}><Feather name="log-out" size={16} /> ログアウト</Text>
             </Pressable>
           </View>
         ) : (
@@ -79,12 +81,12 @@ export default function DiaryListScreen() {
           <View style={styles.loggedOutContainer}>
             <Link href="/new" asChild>
               <Pressable style={styles.authButton}>
-                <Text style={styles.authButtonText}>ユーザー登録</Text>
+                <Text style={styles.authButtonText}><Feather name="user-plus" size={16} /> ユーザー登録</Text>
               </Pressable>
             </Link>
             <Link href="/detail" asChild>
               <Pressable style={styles.loginButton}>
-                <Text style={styles.authButtonText}>ログイン</Text>
+                <Text style={styles.authButtonText}><Feather name="log-in" size={16} /> ログイン</Text>
               </Pressable>
             </Link>
           </View>
@@ -93,7 +95,8 @@ export default function DiaryListScreen() {
       
       {/* --- 日記一覧 (ログインしている時だけ表示) --- */}
       {user && (
-        <View style={styles.listContainer}>
+          <View style={styles.listContainer}>
+          <Text style={styles.SectionTitle}><Feather name="list" size={16} /> 開発ニュース</Text>
           <View style={styles.card}>
             <Text style={styles.cardDate}>2025年7月31日</Text>
             <Text style={styles.cardTitle}>ログイン機能を実装した！</Text>
@@ -103,20 +106,13 @@ export default function DiaryListScreen() {
 
       {user && (
         <View>
-        <Text style={styles.SectionTitle}>あなたの日記一覧</Text>
+        <Text style={styles.SectionTitle}><Feather name="book" size={16} /> あなたの日記一覧</Text>
         <FlatList
           data={diaries}
           keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-            <Link href={{ pathname: `/diary/`,params: { diaryId: item.id } }} asChild>
-            <Pressable>
-            <View style={styles.card}>
-              <Text style={styles.cardDate}>{item.createdAt?.toDate().toLocaleDateString("ja-JP")}</Text>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-                  </View>
-            </Pressable>
-            </Link>
-          )}
+              <DiaryCard item={item} />
+            )}
           style={{ paddingHorizontal: 20 }}
           />
         </View>
@@ -125,7 +121,7 @@ export default function DiaryListScreen() {
         <View>
           <Link href="/newdiary" asChild>
             <Pressable style={styles.authButton}>
-              <Text style={styles.authButtonText}>新しい日記を書く</Text>
+              <Text style={styles.authButtonText}><Feather name="edit" size={16} /> 新しい日記を書く</Text>
             </Pressable>
           </Link>
         </View>

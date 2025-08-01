@@ -1,3 +1,4 @@
+import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
@@ -60,7 +61,7 @@ export default function NewDiaryEntry() {
 
     return (
         <ScrollView style={styles.container}>
-        <Text style={{ fontSize: 24, marginBottom: 20, marginTop: 20 }}>日記の編集</Text>
+        <Text style={{ fontSize: 24, marginBottom: 20, marginTop: 20 }}>日記の編集<Feather name="edit" size={24} /></Text>
         <Text style={{ marginBottom: 20 }}>日記の内容を編集してください。</Text>
         <TextInput
             style={styles.input}
@@ -76,7 +77,7 @@ export default function NewDiaryEntry() {
             multiline
         />
         <Pressable onPress={handleUpdate} style={styles.button}>
-            <Text style={styles.buttonText}>保存</Text>
+            <Text style={styles.buttonText}><Feather name="save" size={16} /> 保存</Text>
         </Pressable>
         </ScrollView>
     );
