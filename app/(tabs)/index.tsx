@@ -2,7 +2,7 @@ import { Link, useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { collection, getFirestore, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React from 'react';
-import { Alert, FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, ScrollView,SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 interface Diary{
   id: string;
@@ -59,7 +59,8 @@ export default function DiaryListScreen() {
     
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
+      <SafeAreaView>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>日記アプリ</Text>
       </View>
@@ -89,7 +90,7 @@ export default function DiaryListScreen() {
           </View>
         )}
       </View>
-
+      
       {/* --- 日記一覧 (ログインしている時だけ表示) --- */}
       {user && (
         <View style={styles.listContainer}>
@@ -106,17 +107,20 @@ export default function DiaryListScreen() {
         <FlatList
           data={diaries}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
+            renderItem={({ item }) => (
+            <Link href={{ pathname: `/diary/`,params: { diaryId: item.id } }} asChild>
+            <Pressable>
             <View style={styles.card}>
               <Text style={styles.cardDate}>{item.createdAt?.toDate().toLocaleDateString("ja-JP")}</Text>
               <Text style={styles.cardTitle}>{item.title}</Text>
-            </View>
+                  </View>
+            </Pressable>
+            </Link>
           )}
           style={{ paddingHorizontal: 20 }}
           />
         </View>
       )}
-
       {user && (
         <View>
           <Link href="/newdiary" asChild>
@@ -126,7 +130,8 @@ export default function DiaryListScreen() {
           </Link>
         </View>
       )}
-    </SafeAreaView>
+      </SafeAreaView>
+    </ScrollView>
   );
 }
 

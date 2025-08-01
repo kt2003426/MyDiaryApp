@@ -33,6 +33,13 @@ export default function RootLayout() {
           presentation: 'modal', // 画面が下からせり上がってくる
         }}
       />
+      <Stack.Screen 
+        name="diary" 
+        options={{ 
+          title: '日記詳細',
+          presentation: 'modal', // 画面が下からせり上がってくる
+        }}
+      />
     </Stack>
   );
 }
